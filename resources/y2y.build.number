@@ -1,0 +1,9 @@
+#Ant properties
+#Tue May 08 01:19:41 CEST 2018
+builddate=20180508 0119
+description=y2y
+name=y2y
+releasedate=20180313 1012
+vendor=hybris
+version=2005.3
+version.api=2005

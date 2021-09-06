@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<items xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="items.xsd">
+
+    <enumtypes>
+        <enumtype code="Database">
+            <value code="MYSQL"/>
+            <value code="SQLSERVER"/>
+            <value code="HANA"/>
+        </enumtype>
+    </enumtypes>
+
+    <maptypes>
+        <maptype code="QueryParametersMapping" argumenttype="java.lang.String" returntype="java.lang.String"/>
+    </maptypes>
+
+    <relations>
+        <relation code="ExportRules" localized="false">
+            <deployment table="exportRules" typecode="10210"/>
+            <sourceElement type="ImportDataCronJob" qualifier="cronJob" cardinality="many"/>
+            <targetElement type="ExportRule" qualifier="exportRules" cardinality="many" ordered="true" collectiontype="set"/>
+        </relation>
+        <relation code="ExportRules2ChildExportRules" localized="false">
+            <deployment table="childExportRules" typecode="10211"/>
+            <sourceElement type="ExportRule" qualifier="parentExportRules" cardinality="many"/>
+            <targetElement type="ExportRule" qualifier="childExportRules" cardinality="many" ordered="true" collectiontype="set"/>
+        </relation>
+    </relations>
+
+    <itemtypes>
+        <typegroup name="Export/Import Data">
+            <itemtype code="SourceSystemConfiguration">
+                <deployment table="sourcesystemconfiguration" typecode="11000"/>
+                <attributes>
+                    <attribute qualifier="code" type="java.lang.String">
+                        <modifiers initial="true" optional="false"/>
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="url" type="java.lang.String">
+                        <modifiers initial="true" optional="false"/>
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="database" type="Database">
+                        <modifiers initial="true" optional="false"/>
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="username" type="java.lang.String">
+                        <modifiers initial="true" optional="false" encrypted="true"/>
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="password" type="java.lang.String">
+                        <modifiers initial="true" optional="false" encrypted="true"/>
+                        <persistence type="property"/>
+                    </attribute>
+                </attributes>
+                <indexes>
+                    <index name="sscUniqueIndex" unique="true">
+                        <key attribute="code"/>
+                    </index>
+                </indexes>
+            </itemtype>
+            <itemtype code="ImportDataCronJob" extends="CronJob">
+                <attributes>
+                    <attribute qualifier="sourceSystem" type="SourceSystemConfiguration">
+                        <modifiers initial="true" optional="false"/>
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="saveImportImpexes" type="boolean">
+                        <persistence type="property"/>
+                        <defaultvalue>java.lang.Boolean.FALSE</defaultvalue>
+                    </attribute>
+                    <attribute qualifier="params" type="QueryParametersMapping">
+                        <persistence type="property"/>
+                    </attribute>
+                </attributes>
+            </itemtype>
+            <itemtype code="ExportPkMatrix">
+                <deployment table="exportPkMatrix" typecode="10208"/>
+                <attributes>
+                    <attribute qualifier="sourcePK" type="java.lang.String">
+                        <modifiers initial="true" optional="false"/>
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="targetPK" type="java.lang.String">
+                        <modifiers initial="true" optional="false"/>
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="rulePK" type="java.lang.String">
+                        <modifiers initial="true" optional="false"/>
+                        <persistence type="property"/>
+                    </attribute>
+                </attributes>
+                <indexes>
+                    <index name="idxEpm">
+                        <key attribute="sourcePK"/>
+                        <key attribute="targetPK"/>
+                        <key attribute="rulePK"/>
+                    </index>
+                </indexes>
+            </itemtype>
+            <itemtype code="ExportRule">
+                <deployment table="exportRule" typecode="10207"/>
+                <attributes>
+                    <attribute qualifier="name" type="java.lang.String">
+                        <modifiers initial="true" optional="false" unique="true"/>
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="countQuery" type="java.lang.String">
+                        <modifiers optional="true"/>
+                        <persistence type="property">
+                            <columntype database="oracle">
+                                <value>CLOB</value>
+                            </columntype>
+                            <columntype database="sap">
+                                <value>NCLOB</value>
+                            </columntype>
+                            <columntype database="mysql">
+                                <value>TEXT</value>
+                            </columntype>
+                            <columntype database="sqlserver">
+                                <value>TEXT</value>
+                            </columntype>
+                            <columntype>
+                                <value>HYBRIS.LONG_STRING</value>
+                            </columntype>
+                        </persistence>
+                    </attribute>
+                    <attribute qualifier="exportQuery" type="java.lang.String">
+                        <modifiers initial="true" optional="false" removable="false"/>
+                        <persistence type="property">
+                            <columntype database="oracle">
+                                <value>CLOB</value>
+                            </columntype>
+                            <columntype database="sap">
+                                <value>NCLOB</value>
+                            </columntype>
+                            <columntype database="mysql">
+                                <value>TEXT</value>
+                            </columntype>
+                            <columntype database="sqlserver">
+                                <value>TEXT</value>
+                            </columntype>
+                            <columntype>
+                                <value>HYBRIS.LONG_STRING</value>
+                            </columntype>
+                        </persistence>
+                    </attribute>
+                    <attribute qualifier="columns" type="StringCollection">
+                        <description>order of columns should be the same as one defined in the `importHeader`, don't add
+                            `PK` as column, it will be always added as a first one
+                        </description>
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="params" type="QueryParametersMapping">
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="importHeader" type="java.lang.String">
+                        <description>order of `importHeader` columns should be the same as one defined in the
+                            `columns`
+                        </description>
+                        <modifiers initial="true" optional="false" removable="false"/>
+                        <persistence type="property">
+                            <columntype database="oracle">
+                                <value>CLOB</value>
+                            </columntype>
+                            <columntype database="sap">
+                                <value>NCLOB</value>
+                            </columntype>
+                            <columntype database="mysql">
+                                <value>TEXT</value>
+                            </columntype>
+                            <columntype database="sqlserver">
+                                <value>TEXT</value>
+                            </columntype>
+                            <columntype>
+                                <value>HYBRIS.LONG_STRING</value>
+                            </columntype>
+                        </persistence>
+                    </attribute>
+                    <attribute qualifier="targetType" type="ComposedType">
+                        <modifiers initial="true" optional="false" removable="false"/>
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="timeout" type="long">
+                        <persistence type="property"/>
+                        <defaultvalue>java.lang.Long.valueOf(120)</defaultvalue>
+                    </attribute>
+                    <attribute qualifier="retries" type="int">
+                        <persistence type="property"/>
+                        <defaultvalue>java.lang.Integer.valueOf(5)</defaultvalue>
+                    </attribute>
+                    <attribute qualifier="batchSize" type="int">
+                        <persistence type="property"/>
+                        <defaultvalue>java.lang.Integer.valueOf(500)</defaultvalue>
+                    </attribute>
+                    <attribute qualifier="maxCount" type="long">
+                        <persistence type="property"/>
+                        <defaultvalue>java.lang.Long.valueOf(-1)</defaultvalue>
+                    </attribute>
+                </attributes>
+                <indexes>
+                    <index name="idxExportRule" unique="true">
+                        <key attribute="name"/>
+                    </index>
+                </indexes>
+            </itemtype>
+        </typegroup>
+    </itemtypes>
+</items>
